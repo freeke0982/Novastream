@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: novastream-secure-admin-stripe
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    plan: free
