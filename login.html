@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% set title = "Login" %}
+{% block content %}
+<div class="auth-page">
+  <section class="auth-card">
+    <div class="badge">NovaStream Login</div>
+    <h1>Anmelden</h1>
+    <p class="muted">Demo: admin@novastream.local / Admin123! oder test@novastream.local / Test123!</p>
+
+    <form id="loginForm" class="stack">
+      <label><span>E-Mail</span><input type="email" name="email" required></label>
+      <label><span>Passwort</span><input type="password" name="password" required></label>
+      <button class="btn" type="submit">Anmelden</button>
+    </form>
+    <p id="message" class="message"></p>
+    <p class="muted small"><a href="{{ url_for('home') }}">Zur Startseite</a> · <a href="{{ url_for('register_page') }}">Registrieren</a></p>
+  </section>
+</div>
+<script>
+document.getElementById("loginForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const form = e.currentTarget;
+  const response = await fetch("/api/login", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({email: form.email.value, password: form.password.value})
+  });
+  const data = await response.json();
+  const message = document.getElementById("message");
+  message.textContent = data.message || "";
+  message.className = "message " + (data.ok ? "success" : "error");
+  if (data.ok && data.redirect) window.location.href = data.redirect;
+});
+</script>
+{% endblock %}

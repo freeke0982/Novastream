@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% set title = "Dashboard" %}
+{% block content %}
+<div class="dashboard-page">
+  <div class="container">
+    <section class="dashboard-header card">
+      <div class="row between">
+        <div>
+          <div class="badge">{{ "Admin" if is_admin else "Kunde" }}</div>
+          <h1>Willkommen, {{ user["full_name"] }}</h1>
+          <p class="muted">{{ user["email"] }} · Rolle: {{ user["role"] }} · Paket: {{ user["package_name"] }}</p>
+        </div>
+        <div class="actions">
+          <a class="btn btn-secondary" href="{{ url_for('home') }}">Startseite</a>
+          <button id="logoutBtn" class="btn">Abmelden</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="stats">
+      <div class="stat"><strong>{{ user["role"]|upper }}</strong><span>Rolle</span></div>
+      <div class="stat"><strong>{{ "Aktiv" if user["is_active"] else "Inaktiv" }}</strong><span>Status</span></div>
+      <div class="stat"><strong>{{ user["package_name"] }}</strong><span>Paket</span></div>
+    </section>
+
+    {% if is_admin %}
+    <section class="card">
+      <div class="row between">
+        <h2>Nutzerverwaltung</h2>
+        <span class="muted">Alle Nutzer aus der SQLite-Datenbank</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>E-Mail</th>
+              <th>Rolle</th>
+              <th>Paket</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in users %}
+            <tr>
+              <td>{{ row["id"] }}</td>
+              <td>{{ row["full_name"] }}</td>
+              <td>{{ row["email"] }}</td>
+              <td>{{ row["role"] }}</td>
+              <td>{{ row["package_name"] }}</td>
+              <td>{{ "Aktiv" if row["is_active"] else "Inaktiv" }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+    {% else %}
+    <section class="card">
+      <h2>Kundenbereich</h2>
+      <p class="muted">Dein Konto ist aktiv. Hier kann später Abo-Status, Rechnungen und Verlängern ergänzt werden.</p>
+    </section>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+document.getElementById("logoutBtn").addEventListener("click", async () => {
+  const response = await fetch("/logout", {method: "POST"});
+  const data = await response.json();
+  if (data.ok && data.redirect) {
+    window.location.href = data.redirect;
+  }
+});
+</script>
+{% endblock %}
